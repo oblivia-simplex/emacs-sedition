@@ -21,7 +21,7 @@
   "History list for `sed/pipe-region'.")
 
 ;;;###autoload
-    (defun sedition-dwim ()
+    (defun sedition ()
       "Pipe the contents of the region to the shell command sed.
 When called interactively, `REGION-BEGINNING' and `REGION-END'
 refer to the beginning and end points of the active region.
