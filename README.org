@@ -56,7 +56,7 @@ So we'll take a couple precautions here: we'll use =call-process-region= instead
 
 #+begin_src emacs-lisp :tangle sedition.el
       ;;;###autoload
-      (defun sedition-dwim (region-beginning region-end)
+      (defun sedition-dwim (&optional region-beginning region-end)
         "Pipe the contents of the region to the shell command sed.
   When called interactively, `REGION-BEGINNING' and `REGION-END'
   refer to the beginning and end points of the active region.
