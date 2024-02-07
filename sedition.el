@@ -37,7 +37,7 @@ the current buffer."
 	     (prompt (if in-region
     			 (format "sed (region %d-%d): " start end)
     		       "sed buffer: "))
-    	     (command (read-string prompt nil 'sed--command-history))
+    	     (command (read-string prompt nil 'sedition--command-history))
     	 ;; generate-new-buffer will create a unique name with this prefix
     	 ;; the initial space hides it from list-buffers and buffer-menu
     	 ;; commands
