@@ -9,8 +9,7 @@
 
 ;; This package lets you issue sed commands to act on the currently active
 ;; region or buffer, more or less like you can in Vi with ex commands like
-;; :%s/foo/bar/g
-;; :'<,'>s/foo/bar/g
+
 ;; and so on.  The work behind the scenes is all being done by sed, so you'll
 ;; need to have the sed tool installed.  (On Unixy systems this won't be an
 ;; issue, generally speaking.)
