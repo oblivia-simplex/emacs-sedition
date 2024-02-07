@@ -6,16 +6,18 @@
  
 The thing I miss most from Vim isn't so much Vim itself as Sed. I like being able to issue sed-like regex substitution commands from the =ex= command line.
 
-** Package Header
+** TODO Package Header
 #+begin_src emacs-lisp :tangle sedition.el
-;;; sedition.el --- Vi-like Sed Commands in Emacs without Evil -*- lexical-binding:t -*-
+;;; sedition.el --- Vi-like Sed Commands without Evil
 #+end_src
 
+And some package metadata:
+
 #+begin_src emacs-lisp :tangle sedition.el
-  ;; Author Olivia Lucca Fraser <lucca.fraser@gmail.com>
-  ;; Version: 0.1
-  ;; Keywords: sed, regexp, ex, vi, vim
-  ;; URL: https://github.com/oblivia-simplex/emacs-sedition
+    ;; Author Olivia Lucca Fraser <lucca.fraser@gmail.com>
+    ;; Version: 0.1
+    ;; Keywords: convenience, matching, tools, unix
+    ;; URL: https://github.com/oblivia-simplex/emacs-sedition
 #+end_src
 
 We'll keep the commentary here brief, and just refer the reader to this README.org.
@@ -30,6 +32,9 @@ We'll keep the commentary here brief, and just refer the reader to this README.o
   ;; and so on.  The work behind the scenes is all being done by sed, so you'll
   ;; need to have the sed tool installed.  (On Unixy systems this won't be an
   ;; issue, generally speaking.)
+  ;;
+  ;; See the README.org at https://github.com/oblivia-simplex/emacs-sedition/
+  ;; for more details.
 #+end_src
 
 And that's just about it for the package header. We just need to indicate
@@ -93,8 +98,7 @@ So we'll take a couple precautions here: we'll use =call-process-region= instead
       	   (message "sed: error in command '%s'" command))
       	  ((stringp exitcode)
       	   (message "sed: %s" exitcode))
-      	  (t (message "sed: exited with code %d" exitcode))
-      	  )
+      	  (t (message "sed: exited with code %d" exitcode)))
           (kill-buffer tmpbuffer)))
 #+end_src
 

@@ -1,8 +1,8 @@
-;;; sedition.el --- Vi-like Sed Commands in Emacs without Evil -*- lexical-binding:t -*-
+;;; sedition.el --- Vi-like Sed Commands without Evil
 
 ;; Author Olivia Lucca Fraser <lucca.fraser@gmail.com>
 ;; Version: 0.1
-;; Keywords: sed, regexp, ex, vi, vim
+;; Keywords: convenience, matching, tools, unix
 ;; URL: https://github.com/oblivia-simplex/emacs-sedition
 
 ;;; Commentary:
@@ -14,6 +14,9 @@
 ;; and so on.  The work behind the scenes is all being done by sed, so you'll
 ;; need to have the sed tool installed.  (On Unixy systems this won't be an
 ;; issue, generally speaking.)
+;;
+;; See the README.org at https://github.com/oblivia-simplex/emacs-sedition/
+;; for more details.
 
 ;;; Code:
 
@@ -58,8 +61,7 @@ the current buffer."
     	   (message "sed: error in command '%s'" command))
     	  ((stringp exitcode)
     	   (message "sed: %s" exitcode))
-    	  (t (message "sed: exited with code %d" exitcode))
-    	  )
+    	  (t (message "sed: exited with code %d" exitcode)))
         (kill-buffer tmpbuffer)))
 
 (provide 'sedition)
