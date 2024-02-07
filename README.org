@@ -63,12 +63,13 @@ So we'll take a couple precautions here: we'll use =call-process-region= instead
   If no region is active, they are set to the beginning and end of
   the current buffer."
         (interactive)
-        (let* ((prompt (if (use-region-p)
-      		     (format "sed (region %d-%d): " region-beginning region-end)
-      		   "sed buffer: "))
-      	 (start (if (use-region-p) (region-beginning) (point-min)))
-      	 (end (if (use-region-p) (region-end) (point-max)))
-      	 (command (read-string prompt nil 'sed--command-history))
+        (let* ((in-region (use-region-p))
+  	     (start (if in-region (region-beginning) (point-min)))
+  	     (end (if in-region (region-end) (point-max)))
+  	     (prompt (if in-region
+      			 (format "sed (region %d-%d): " start end)
+      		       "sed buffer: "))
+      	     (command (read-string prompt nil 'sed--command-history))
       	 ;; generate-new-buffer will create a unique name with this prefix
       	 ;; the initial space hides it from list-buffers and buffer-menu
       	 ;; commands

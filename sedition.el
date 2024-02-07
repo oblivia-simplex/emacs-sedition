@@ -9,7 +9,8 @@
 
 ;; This package lets you issue sed commands to act on the currently active
 ;; region or buffer, more or less like you can in Vi with ex commands like
-
+;; :%s/foo/bar/g
+;; :'<,'>s/foo/bar/g
 ;; and so on.  The work behind the scenes is all being done by sed, so you'll
 ;; need to have the sed tool installed.  (On Unixy systems this won't be an
 ;; issue, generally speaking.)
@@ -27,12 +28,13 @@ refer to the beginning and end points of the active region.
 If no region is active, they are set to the beginning and end of
 the current buffer."
       (interactive)
-      (let* ((prompt (if (use-region-p)
-    		     (format "sed (region %d-%d): " region-beginning region-end)
-    		   "sed buffer: "))
-    	 (start (if (use-region-p) (region-beginning) (point-min)))
-    	 (end (if (use-region-p) (region-end) (point-max)))
-    	 (command (read-string prompt nil 'sed--command-history))
+      (let* ((in-region (use-region-p))
+	     (start (if in-region (region-beginning) (point-min)))
+	     (end (if in-region (region-end) (point-max)))
+	     (prompt (if in-region
+    			 (format "sed (region %d-%d): " start end)
+    		       "sed buffer: "))
+    	     (command (read-string prompt nil 'sed--command-history))
     	 ;; generate-new-buffer will create a unique name with this prefix
     	 ;; the initial space hides it from list-buffers and buffer-menu
     	 ;; commands
