@@ -56,18 +56,18 @@ So we'll take a couple precautions here: we'll use =call-process-region= instead
 
 #+begin_src emacs-lisp :tangle sedition.el
       ;;;###autoload
-      (defun sedition-dwim (&optional region-beginning region-end)
+      (defun sedition-dwim ()
         "Pipe the contents of the region to the shell command sed.
   When called interactively, `REGION-BEGINNING' and `REGION-END'
   refer to the beginning and end points of the active region.
   If no region is active, they are set to the beginning and end of
   the current buffer."
-        (interactive "r")
+        (interactive)
         (let* ((prompt (if (use-region-p)
       		     (format "sed (region %d-%d): " region-beginning region-end)
       		   "sed buffer: "))
-      	 (start (if (use-region-p) region-beginning (point-min)))
-      	 (end (if (use-region-p) region-end (point-max)))
+      	 (start (if (use-region-p) (region-beginning) (point-min)))
+      	 (end (if (use-region-p) (region-end) (point-max)))
       	 (command (read-string prompt nil 'sed--command-history))
       	 ;; generate-new-buffer will create a unique name with this prefix
       	 ;; the initial space hides it from list-buffers and buffer-menu
