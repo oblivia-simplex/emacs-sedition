@@ -1,0 +1,113 @@
+#+title: Vi-like Sed Commands with sedition.el
+#+author: Olivia Lucca Fraser
+#+date: February 7, 2024
+
+* sedition.el provides Vi-like Sed Commands (without Evil)
+ 
+The thing I miss most from Vim isn't so much Vim itself as Sed. I like being able to issue sed-like regex substitution commands from the =ex= command line.
+
+** Package Header
+#+begin_src emacs-lisp :tangle sedition.el
+;;; sedition.el --- Vi-like Sed Commands in Emacs without Evil -*- lexical-binding:t -*-
+#+end_src
+
+#+begin_src emacs-lisp :tangle sedition.el
+  ;; Author Olivia Lucca Fraser <lucca.fraser@gmail.com>
+  ;; Version: 0.1
+  ;; Keywords: sed, regexp, ex, vi, vim
+  ;; URL: https://github.com/oblivia-simplex/emacs-sedition
+#+end_src
+
+We'll keep the commentary here brief, and just refer the reader to this README.org.
+
+#+begin_src emacs-lisp :tangle sedition.el
+  ;;; Commentary:
+
+  ;; This package lets you issue sed commands to act on the currently active
+  ;; region or buffer, more or less like you can in Vi with ex commands like
+  ;; :%s/foo/bar/g
+  ;; :'<,'>s/foo/bar/g
+  ;; and so on.  The work behind the scenes is all being done by sed, so you'll
+  ;; need to have the sed tool installed.  (On Unixy systems this won't be an
+  ;; issue, generally speaking.)
+#+end_src
+
+And that's just about it for the package header. We just need to indicate
+where the code begins, which will be right... here:
+
+#+begin_src emacs-lisp :tangle sedition.el
+  ;;; Code:
+  
+#+end_src
+
+** Sed command History
+Let's create a variable to store the command history for our sed commands.
+
+#+begin_src emacs-lisp :tangle sedition.el
+  (defvar sedition--command-history nil
+    "History list for `sed/pipe-region'.")
+#+end_src
+
+** Issuing Sed-like Commands on Buffers and Regions
+
+We /could/ use =shell-command-region= for this, but that would be a mistake. It's not /malicious/ shell injection we're worried about here -- if the user is running emacs, they can presumably be trusted with arbitrary shell commands -- but /inadvertant/ shell commands. A command to substitute ~"->"~ with ~"==>"~, for example, could inadvertantly invoke output redirection in the shell, thanks to the ">" character.
+
+So we'll take a couple precautions here: we'll use =call-process-region= instead, passing the sed command argument explicitly, and we'll check the exit code of the command before we do anything to the buffer or region selected.
+
+#+begin_src emacs-lisp :tangle sedition.el
+      ;;;###autoload
+      (defun sedition-dwim (region-beginning region-end)
+        "Pipe the contents of the region to the shell command sed.
+  When called interactively, `REGION-BEGINNING' and `REGION-END'
+  refer to the beginning and end points of the active region.
+  If no region is active, they are set to the beginning and end of
+  the current buffer."
+        (interactive "r")
+        (let* ((prompt (if (use-region-p)
+      		     (format "sed (region %d-%d): " region-beginning region-end)
+      		   "sed buffer: "))
+      	 (start (if (use-region-p) region-beginning (point-min)))
+      	 (end (if (use-region-p) region-end (point-max)))
+      	 (command (read-string prompt nil 'sed--command-history))
+      	 ;; generate-new-buffer will create a unique name with this prefix
+      	 ;; the initial space hides it from list-buffers and buffer-menu
+      	 ;; commands
+      	 (tmpbuffer (generate-new-buffer " *sed*"))
+      	 (exitcode (call-process-region start
+      					end
+      					"sed"
+      					nil ;; don't delete anything yet
+      					tmpbuffer
+      					t
+      					command)))
+          ;; We only want to perform any action on the region/buffer
+          ;; if the command succeeded, so check the exit code here.
+          (cond ((zerop exitcode)
+      	   (delete-region start end)
+      	   (goto-char start)
+      	   (insert-buffer-substring tmpbuffer))
+      	  ((= exitcode 127)
+      	   (message "sed: command not found"))
+      	  ((= exitcode 1)
+      	   (message "sed: error in command '%s'" command))
+      	  ((stringp exitcode)
+      	   (message "sed: %s" exitcode))
+      	  (t (message "sed: exited with code %d" exitcode))
+      	  )
+          (kill-buffer tmpbuffer)))
+#+end_src
+
+** Wrapping Everything Up
+
+Okay, our sed tool is ready! Go ahead and bind a key to it. I have it set to *C-c s*, myself, and to */* in [[https://github.com/meow-edit/meow][Meow mode]].
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-c s") 'sedition-dwim)
+#+end_src
+
+This is the whole module, by the way. Just =org-babel-tangle= this file, and you'll have an up-to-date sedition.el.
+
+#+begin_src emacs-lisp :tangle sedition.el
+  (provide 'sedition)
+  ;;; sedition.el ends here
+#+end_src
